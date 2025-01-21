@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface BarChartProps {
   value: number;
@@ -7,16 +7,15 @@ interface BarChartProps {
 }
 
 export default function BarChart({ value, label }: BarChartProps) {
-  const [height, setHeight] = useState(0);
+  const [currentHeight, setCurrentHeight] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setHeight(value);
-    }, 100);
-
-    return () => clearTimeout(timer);
+    // Запускаем анимацию после монтирования
+    requestAnimationFrame(() => {
+      setCurrentHeight(value);
+    });
   }, [value]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -24,7 +23,7 @@ export default function BarChart({ value, label }: BarChartProps) {
     const relativeY = e.clientY - rect.top;
     const heightPercent = (1 - relativeY / rect.height) * 100;
 
-    if (heightPercent <= height) {
+    if (heightPercent <= value) {
       setTooltipPosition(relativeY);
       setShowTooltip(true);
     } else {
@@ -33,7 +32,7 @@ export default function BarChart({ value, label }: BarChartProps) {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center h-[184px]">
       <div
         className="relative w-12 h-40 bg-gray-50 rounded-md overflow-visible dark:bg-gray-700 cursor-pointer"
         onMouseMove={handleMouseMove}
@@ -50,8 +49,8 @@ export default function BarChart({ value, label }: BarChartProps) {
           </div>
         )}
         <div
-          className="absolute bottom-0 w-full transition-all duration-700 ease-out bg-[#8BC34A] rounded-md"
-          style={{ height: `${height}%` }}
+          className="absolute bottom-0 w-full bg-[#8BC34A] rounded-md transition-all duration-700 ease-out"
+          style={{ height: `${currentHeight}%` }}
         />
       </div>
       <span className="mt-2 text-xs text-gray-600 dark:text-gray-400">

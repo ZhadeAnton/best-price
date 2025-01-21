@@ -9,6 +9,7 @@ interface ProgressBarProps {
   description?: string;
   showInfo?: boolean;
   bgColor?: string;
+  isLoading?: boolean;
 }
 
 export default function ProgressBar({
@@ -19,10 +20,33 @@ export default function ProgressBar({
   description,
   showInfo = false,
   bgColor = '#F5F5F5',
+  isLoading = false,
 }: ProgressBarProps) {
   const isRed = value < 50;
   const knobColor = isRed ? '#ef4444' : '#8BC34A';
   const roundedColor = isRed ? '#be2e00' : '#8BC34A';
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-100 p-3 h-full">
+        {showInfo && (
+          <div className="flex justify-end">
+            <div className="w-5 h-5 bg-gray-100 rounded-full animate-pulse" />
+          </div>
+        )}
+
+        <div className="h-5 w-32 bg-gray-100 rounded animate-pulse mb-4" />
+        <div className="h-4 w-24 bg-gray-100 rounded animate-pulse mb-3" />
+
+        <div className="relative h-[12px] bg-gray-100 rounded-full animate-pulse" />
+
+        <div className="mt-2 space-y-2">
+          <div className="h-3 w-40 bg-gray-100 rounded animate-pulse" />
+          <div className="h-3 w-48 bg-gray-100 rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg border border-gray-100 p-5 h-full">

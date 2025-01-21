@@ -13,15 +13,33 @@ export default function OrderIncome() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('/api/income');
-      const data = await response.json();
-      setData(data);
+      try {
+        const response = await fetch('/api/income');
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error('Error fetching income data:', error);
+      }
     };
 
     fetchData();
   }, []);
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-100 p-3">
+        <div className="h-5 w-48 bg-gray-100 rounded animate-pulse mb-3" />
+        <div className="space-y-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex justify-between items-center py-2">
+              <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+              <div className="h-4 w-20 bg-gray-100 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const items = [
     { label: 'Всего', value: data.total },

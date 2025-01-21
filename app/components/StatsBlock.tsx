@@ -1,39 +1,81 @@
 'use client';
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/solid';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const statItems = [
-  {
-    key: 'parameters',
-    label: 'Параметры',
-    value: '174',
-    subValue: '+5.4%',
-  },
-  {
-    key: 'contacts',
-    label: 'Контакты',
-    value: '0',
-    subValue: '-100%',
-  },
-  {
-    key: 'favorites',
-    label: 'Избранное',
-    value: '8',
-  },
-  {
-    key: 'orders',
-    label: 'Заказов',
-    value: '0',
-    subValue: '-100%',
-  },
-];
+interface StatItem {
+  key: string;
+  label: string;
+  value: string | number;
+  subValue?: string;
+}
 
 export default function StatsBlock() {
   const [selectedKey, setSelectedKey] = useState('parameters');
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<StatItem[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        
+        const formattedStats = [
+          {
+            key: 'parameters',
+            label: 'Параметры',
+            value: data.parameters.value,
+            subValue: data.parameters.change,
+          },
+          {
+            key: 'contacts',
+            label: 'Контакты',
+            value: data.contacts.value,
+            subValue: data.contacts.change,
+          },
+          {
+            key: 'favorites',
+            label: 'Избранное',
+            value: data.favorites.value,
+          },
+          {
+            key: 'orders',
+            label: 'Заказов',
+            value: data.orders.value,
+            subValue: data.orders.change,
+          },
+        ];
+        
+        setStats(formattedStats);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-between gap-1">
+        {[...Array(4)].map((_, index) => (
+          <div
+            key={index}
+            className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 animate-pulse"
+          >
+            <div className="h-4 bg-gray-200 rounded w-20 mb-2" />
+            <div className="h-8 bg-gray-200 rounded w-16" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-between gap-1">
-      {statItems.map(({ key, label, value, subValue }) => (
+      {stats.map(({ key, label, value, subValue }) => (
         <div
           key={key}
           onClick={() => setSelectedKey(key)}
